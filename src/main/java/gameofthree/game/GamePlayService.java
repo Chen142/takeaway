@@ -1,27 +1,31 @@
 package gameofthree.game;
 
-import gameofthree.game.negotiation.GameNegotiationService;
+import gameofthree.game.exceptions.InvalidateStepException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class GamePlayService {
 
-  private GameNegotiationService gameNegotiationService;
-  private GameStore gameStore;
+  private Game runningGame;
 
-  public GamePlayService(
-      GameNegotiationService gameNegotiationService,
-      GameStore gameStore) {
-    this.gameNegotiationService = gameNegotiationService;
-    this.gameStore = gameStore;
-  }
-
-  public void playNextGame() {
+  public void sendNumberToOpposite(int number, String gameId) {
+    log.info("For game {}: {} played", gameId, number);
+    //todo
 
   }
 
+  public void recieveNumber(int number, String gameId) throws InvalidateStepException {
+    if (runningGame.getId().equals(gameId)) {
+      runningGame.pushStep(number);
+    } else {
+      throw new InvalidateStepException("Incorrect GameId.");
+    }
+  }
 
-
-
-
+  public void connectGame(Game runningGame) {
+    this.runningGame = runningGame;
+    runningGame.setPlayNumber(n -> sendNumberToOpposite(n, runningGame.getId()));
+  }
 }

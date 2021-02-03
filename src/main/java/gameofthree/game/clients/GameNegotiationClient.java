@@ -30,6 +30,7 @@ public class GameNegotiationClient {
   ) {
     this.restTemplate = restTemplate;
     this.oppositeUrl = oppositeUrl;
+    log.info("Starting with opposite player - {}", oppositeUrl);
   }
 
   public List<GameNegotiationDTO> rollStarter(GameNegotiationDTO gameNegotiationDTO) {
@@ -41,7 +42,7 @@ public class GameNegotiationClient {
           entity,
           new ParameterizedTypeReference<List<GameNegotiationDTO>>() {}).getBody();
     } catch (Exception e) {
-      log.error("Error communicating with opposite side.");
+      log.error("Error communicating with opposite side.", e);
       return Collections.emptyList();
     }
   }

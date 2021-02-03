@@ -1,7 +1,7 @@
 package gameofthree.game.negotiation;
 
 import gameofthree.game.Game;
-import gameofthree.game.GameStore;
+import gameofthree.game.GameManager;
 import gameofthree.game.clients.GameNegotiationClient;
 import gameofthree.game.exceptions.GameRunningException;
 import gameofthree.game.interfaces.GameInfoDTO;
@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
@@ -20,23 +19,21 @@ import org.springframework.util.CollectionUtils;
 
 @Service
 @Slf4j
-public class GameNegotiationService implements InitializingBean {
+public class GameNegotiationService {
 
   private String lastGameId;
   private String nextRoll;
 
   private final GameNegotiationClient gameNegotiationClient;
-  private final GameStore gameStore;
+  private final GameManager gameManager;
 
-  //lastGameId of the 1st game.
-  private static final String GAME_ZERO_ID = "hello world";
 
   public GameNegotiationService(
       GameNegotiationClient gameNegotiationClient,
-      GameStore gameStore
+      GameManager gameManager
       ) {
     this.gameNegotiationClient = gameNegotiationClient;
-    this.gameStore = gameStore;
+    this.gameManager = gameManager;
   }
 
 
@@ -59,7 +56,7 @@ public class GameNegotiationService implements InitializingBean {
         if (roll.getRoll().compareTo(this.nextRoll) > 0) {
           log.info("Negotiation result: Next game starter.");
           // we are the winner
-          Game nextGame = gameStore.prepareNextGame();
+          Game nextGame = gameManager.prepareNextGame();
           callConfirm(new GameInfoDTO(nextGame));
           return new AsyncResult<>(Boolean.TRUE);
         }
@@ -126,12 +123,5 @@ public class GameNegotiationService implements InitializingBean {
     }
   }
 
-  @Override
-  public void afterPropertiesSet() throws Exception {
-    createNextGameContext(GAME_ZERO_ID);
-    if (Boolean.TRUE.equals(shouldStartNextGame(GAME_ZERO_ID, false).get())) {
-      //start the game
-      gameStore.startAGame();
-    }
-  }
+
 }

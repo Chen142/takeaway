@@ -2,6 +2,7 @@ package gameofthree.game.interfaces;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * A simple structure to decide who will be the next game starter.
@@ -12,6 +13,7 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class GameNegotiationDTO {
   private String lastGameId;
   private String roll;

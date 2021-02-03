@@ -1,7 +1,7 @@
 package gameofthree.rest;
 
 
-import gameofthree.game.GameStore;
+import gameofthree.game.GameManager;
 import gameofthree.game.interfaces.GamePlayDTO;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class GamePlayController {
 
-  private GameStore gameStore;
+  private GameManager gameManager;
 
   @Autowired
-  public GamePlayController(GameStore gameStore) {
-    this.gameStore = gameStore;
+  public GamePlayController(GameManager gameManager) {
+    this.gameManager = gameManager;
   }
 
   @GetMapping("/test")

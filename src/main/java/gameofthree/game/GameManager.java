@@ -9,21 +9,37 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-// store the queued games and history games.
+/**
+ * Manage the game status, store history games and games to play
+ * Collecting history games is not implemented therefore it can be OOM if too many games get played.
+ * (normally we connect to a db for it, ignore that part for this small DEMO).
+ */
 @Component
-public class GameStore {
+@Slf4j
+public class GameManager {
+
+  private final GamePlayService gamePlayService;
+  private final int restBetweenGamesSec;
 
   private final ConcurrentMap<String, Game> playedGames = new ConcurrentHashMap<>();// stores history games and ongoing games.
   private final BlockingQueue<Game> queuedGames = new ArrayBlockingQueue<>(10);
   private final Supplier<Game> gameSupplier;
   private Game runningGame = null;
 
+
   @Autowired
-  public GameStore(Supplier<Game> supplier) {
-    gameSupplier = supplier;
+  public GameManager(
+      Supplier<Game> gameCreator,
+      GamePlayService gamePlayService,
+      @Value("${game.rest.sec:10}") int restBetweenGamesSec) {
+    gameSupplier = gameCreator;
+    this.gamePlayService = gamePlayService;
+    this.restBetweenGamesSec = restBetweenGamesSec;
   }
 
   /**
@@ -41,7 +57,7 @@ public class GameStore {
 
 
   /**
-   * Start the game, create one if the next game isn't prepared.
+   * Start the game as game starter, create one if the next game isn't prepared.
    * @throws GameRunningException when there is already a game running.
    */
   public synchronized Game startAGame() throws GameRunningException, InterruptedException {
@@ -51,6 +67,8 @@ public class GameStore {
     if (runningGame.isGameRunning()) {
       throw new GameRunningException(runningGame.getId());
     }
+    log.info("Game {} started, play as starter.", runningGame.getId());
+    connectGame();
     runningGame.startGame(true);
     playedGames.put(runningGame.getId(), runningGame);
     return runningGame;
@@ -60,8 +78,7 @@ public class GameStore {
     if(runningGame != null && runningGame.isGameRunning()) {
       throw new GameRunningException(runningGame.getId());
     }
-    //todo move it to configuration
-    runningGame = queuedGames.poll(10, TimeUnit.SECONDS);
+    runningGame = queuedGames.poll(restBetweenGamesSec, TimeUnit.SECONDS);
     runningGame = gameSupplier.get();
     return runningGame;
   }
@@ -71,14 +88,15 @@ public class GameStore {
    * Start a game as follower
    * @throws GameRunningException when there is already a game running.
    */
-  public synchronized Game startGameAsFollower(Game game) throws GameRunningException {
+  public synchronized void startGameAsFollower(Game game) throws GameRunningException {
     if(runningGame != null && runningGame.isGameRunning()) {
       throw new GameRunningException(runningGame.getId());
     }
     runningGame = game;
+    connectGame();
     runningGame.startGame(false);
     playedGames.put(runningGame.getId(), runningGame);
-    return runningGame;
+    log.info("Game {} started, play as follower.", game.getId());
   }
 
   /**
@@ -98,4 +116,7 @@ public class GameStore {
     return !queuedGames.isEmpty();
   }
 
+  public void connectGame() {
+    gamePlayService.connectGame(runningGame);
+  }
 }

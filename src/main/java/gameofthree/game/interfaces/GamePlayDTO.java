@@ -1,5 +1,13 @@
 package gameofthree.game.interfaces;
 
-public class GamePlayDTO {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+public class GamePlayDTO {
+  private String gameId;
+  private int number;
 }

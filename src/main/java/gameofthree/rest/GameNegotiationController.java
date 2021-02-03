@@ -1,12 +1,11 @@
 package gameofthree.rest;
 
-import gameofthree.game.GameStore;
+import gameofthree.game.GameManager;
 import gameofthree.game.exceptions.GameRunningException;
 import gameofthree.game.interfaces.GameInfoDTO;
 import gameofthree.game.interfaces.GameNegotiationDTO;
 import gameofthree.game.negotiation.GameNegotiationService;
 import java.util.List;
-import jdk.jshell.spi.ExecutionControl.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,12 +25,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class GameNegotiationController {
 
   private final GameNegotiationService gameNegotiationService;
-  private final GameStore gameStore;
+  private final GameManager gameManager;
 
   @Autowired
-  public GameNegotiationController(GameNegotiationService gameNegotiationService, GameStore gameStore) {
+  public GameNegotiationController(GameNegotiationService gameNegotiationService, GameManager gameManager) {
     this.gameNegotiationService = gameNegotiationService;
-    this.gameStore = gameStore;
+    this.gameManager = gameManager;
   }
 
   /**
@@ -41,7 +40,7 @@ public class GameNegotiationController {
    */
   @PostMapping(value = "/roll", consumes = "application/json", produces = "application/json")
   public List<GameNegotiationDTO> rollStarter(@RequestBody GameNegotiationDTO negotiation) {
-    return gameNegotiationService.replyNegotiation(negotiation, gameStore.hasGameInQueue());
+    return gameNegotiationService.replyNegotiation(negotiation, gameManager.hasGameInQueue());
   }
 
   /**
@@ -52,7 +51,7 @@ public class GameNegotiationController {
    */
   @PostMapping(value = "/confirm", consumes = "application/json", produces = "application/json")
   public Boolean confirmStarter(@RequestBody GameInfoDTO gameInfoDTO) throws GameRunningException {
-    gameStore.startGameAsFollower(gameInfoDTO.toGame());
+    gameManager.startGameAsFollower(gameInfoDTO.toGame());
     return Boolean.TRUE;
   }
 
