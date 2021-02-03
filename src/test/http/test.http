@@ -1,0 +1,39 @@
+### negotiation roll as starter.
+POST http://localhost:8080/negotiate/roll
+Content-Type: application/json
+
+{
+  "lastGameId": "hello world",
+  "roll": "zzzzzzzz",
+  "demand": false
+}
+
+### negotiation roll as follower
+POST http://localhost:8080/negotiate/roll
+Content-Type: application/json
+
+{
+  "lastGameId": "hello world",
+  "roll": "9999999",
+  "demand": false
+}
+
+### negotiation roll with demand.
+POST http://localhost:8080/negotiate/roll
+Content-Type: application/json
+
+{
+  "lastGameId": "hello world",
+  "roll": "zzzzzzzzz",
+  "demand": true
+}
+
+### confirm a game
+POST http://localhost:8080/negotiate/confirm
+Content-Type: application/json
+
+{
+  "gameId": "9999999",
+  "firstNumber": "12345",
+  "demand": false
+}

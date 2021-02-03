@@ -1,0 +1,8 @@
+game:
+  http:
+    connect.timeoutMs: 30
+    read.timeoutMs: 100
+  opposite.url: localhost:8090
+
+server:
+  port : 8080
