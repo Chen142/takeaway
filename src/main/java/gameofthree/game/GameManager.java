@@ -20,7 +20,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Manage the game lifecycle, store history games and the games to play
+ * Manage the game lifecycle, store history games and the games to play.
+ * Provide game lifecycle events (start, number played, end) so that the communication and controller components can subscribe.
  * Collecting history games is not implemented therefore it can be OOM if too many games get played.
  * (normally we connect to a db for it, not super important for this small project :P ).
  */
@@ -67,14 +68,14 @@ public class GameManager {
    * Start the game as game starter, create one if the next game isn't prepared.
    * @throws GameRunningException when there is already a game running.
    */
-  public synchronized Game startAGame() throws GameRunningException, InterruptedException {
+  public synchronized Game startAGameAsStarter() throws GameRunningException, InterruptedException {
     if (runningGame == null) {
       prepareNextGame();
     }
     if (runningGame.isGameRunning()) {
       throw new GameRunningException(runningGame.getId());
     }
-    log.info("Game {} started, play as starter.", runningGame.getId());
+    log.info("Play {} as starter.", runningGame.getId());
     playedGames.put(runningGame.getId(), runningGame);
     attachGameEventsHandlers();
     runningGame.startGame(true);
@@ -106,9 +107,10 @@ public class GameManager {
       throw new GameRunningException(runningGame.getId());
     }
     runningGame = game;
+    attachGameEventsHandlers();
     runningGame.startGame(false);
     playedGames.put(runningGame.getId(), runningGame);
-    log.info("Game {} started, play as follower.", game.getId());
+    log.info("Play {} as follower, first number is {}", game.getId(), game.getFirstNumber());
   }
 
   /**
@@ -145,25 +147,42 @@ public class GameManager {
   }
 
   private void callOnGameStarts(Game runningGame) {
+    log.info("Game {} starts.", runningGame.getId());
     this.onGameStarts.forEach(c -> c.accept(runningGame));
   }
 
   private void callOnGameEnds(Game game) {
+    log.info("Game {} ends.", game.getId());
     this.onGameEnds.forEach(c -> c.accept(game));
   }
 
   private void callOnNumberPlayed(Integer number) {
+    log.info("Sending number {}.", number);
     this.onNumberPlayed.forEach(c -> c.accept(runningGame, number));
   }
 
+  /**
+   * Not used? leave the event. :D
+   * Can be useful in many cases.
+   * @param listener
+   */
   public void attachGameStartsListener(Consumer<Game> listener) {
     this.onGameStarts.add(listener);
-
   }
+
+  /**
+   * Attach Game end events listener
+   * @param listener events listener
+   */
   public void attachGameEndsListener(Consumer<Game> listener) {
     this.onGameEnds.add(listener);
 
   }
+
+  /**
+   * Attach gameplay events listener
+   * @param listener events listener
+   */
   public void attachGamePlayListener(BiConsumer<Game, Integer> listener) {
     this.onNumberPlayed.add(listener);
   }

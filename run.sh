@@ -4,6 +4,9 @@
 # bash run.sh player1 8080 player2:9090
 # bash run.sh player2 9090 player1:8080
 
+#stop all containers..
+docker stop $1
+
 REBUILD=0
 if [ $4 -eq "rebuild" ]; then
   REBUILD=1

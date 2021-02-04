@@ -42,7 +42,7 @@ public class GameNegotiationClient {
           entity,
           new ParameterizedTypeReference<List<GameNegotiationDTO>>() {}).getBody();
     } catch (Exception e) {
-      log.error("Error communicating with opposite side.", e);
+      log.error("Wait the other side to be ready.");
       return Collections.emptyList();
     }
   }
@@ -56,7 +56,7 @@ public class GameNegotiationClient {
           entity,
           Boolean.class).getBody());
     } catch (Exception e) {
-      log.error("Error communicating with opposite side.");
+      log.error("Wait the other side to be ready.");
       return false;
     }
   }

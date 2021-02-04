@@ -7,4 +7,8 @@ public class GamePlayException extends RuntimeException {
   public GamePlayException(String msg) {
     super(msg);
   }
+
+  public GamePlayException(Exception e) {
+    super(e);
+  }
 }

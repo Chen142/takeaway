@@ -124,6 +124,7 @@ public class GameNegotiationService {
       this.lastGameId = lastGameId;
       nextRoll = UUID.randomUUID().toString();
     }
+    this.lastGameId = lastGameId;
   }
 
 

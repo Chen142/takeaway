@@ -5,6 +5,10 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import org.springframework.stereotype.Component;
 
+/**
+ * Automatically generating a game.
+ * Replace it with something waiting for manual creation if we don't want the automation.
+ */
 @Component
 public class AutoGameGenerator implements Supplier<Game> {
 

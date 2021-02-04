@@ -8,6 +8,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 
+/**
+ * The essential logic of the game.
+ * What about replacing it with chess game? :P
+ * - change the Integer to a generic type and create an interface.
+ */
 @Getter
 public class Game {
 
@@ -31,7 +36,9 @@ public class Game {
   // game info:
   private final String id;
   private final int firstNumber;
+  private boolean isGameStarter;
 
+  //game lifecycle
   private boolean gameRunning;
 
   // game logs:
@@ -54,15 +61,18 @@ public class Game {
     gameSteps.add(new GameStep(number, Operation.RECEIVE));
     if (number == 1) {
       endGame(GameResult.LOSS);
+      return;
     }
 
     final int nextNumber = playCore(number);
     this.gameSteps.add(new GameStep(nextNumber, Operation.SEND));
 
+    playNumber.accept(nextNumber);
+
+    // it can run before sending out the number? It should be fine..
     if (nextNumber == 1) {
       endGame(GameResult.WIN);
     }
-    playNumber.accept(nextNumber);
   }
 
   private void endGame(GameResult result) {
@@ -89,6 +99,10 @@ public class Game {
     }
     //anti-cheating..
     if (!gameSteps.isEmpty()) {
+      // the starter will send the 1st number, which is the same as the number there.
+      if (!isGameStarter && gameSteps.isEmpty() && firstNumber == number) {
+        return;
+      }
       int lastNumber = gameSteps.get(gameSteps.size() - 1).getNumber();
       if (playCore(lastNumber) != number) {
         throw new InvalidStepException("The opposite side is trying to cheat.");
@@ -100,12 +114,13 @@ public class Game {
    * Start the game
    */
   public void startGame(boolean asStarter) {
+    this.isGameStarter = asStarter;
     if (onGameStarts != null) {
       onGameStarts.accept(this);
     }
     gameRunning = true;
-    gameSteps.add(new GameStep(firstNumber, Operation.SEND));
     if (asStarter) {
+      gameSteps.add(new GameStep(firstNumber, Operation.SEND));
       playNumber.accept(firstNumber);
     }
   }
@@ -115,9 +130,11 @@ public class Game {
    * @param gameException reason why the game is ended with exception, can be used to print
    */
   public void endGameExceptionally(String gameException) {
-    this.gameRunning = false;
-    this.gameException = gameException;
-    onGameEnds.accept(this);
+    if (gameRunning) {
+      this.gameRunning = false;
+      this.gameException = gameException;
+      onGameEnds.accept(this);
+    }
   }
 
   /**

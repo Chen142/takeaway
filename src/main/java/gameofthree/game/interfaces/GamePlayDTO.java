@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Used to communicate between players for a number is played.
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

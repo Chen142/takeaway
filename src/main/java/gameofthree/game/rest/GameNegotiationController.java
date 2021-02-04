@@ -6,7 +6,10 @@ import gameofthree.game.interfaces.GameInfoDTO;
 import gameofthree.game.interfaces.GameNegotiationDTO;
 import gameofthree.game.services.GameNegotiationService;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,9 +53,13 @@ public class GameNegotiationController {
    * @throws GameRunningException Thrown when the follower hasn't finish it's ongoing game, the starter will retry after some time.
    */
   @PostMapping(value = "/confirm", consumes = "application/json", produces = "application/json")
-  public Boolean confirmStarter(@RequestBody GameInfoDTO gameInfoDTO) throws GameRunningException {
-    gameManager.startGameAsFollower(gameInfoDTO.toGame());
-    return Boolean.TRUE;
+  public ResponseEntity<Boolean> confirmStarter(@RequestBody GameInfoDTO gameInfoDTO) throws GameRunningException {
+    try {
+      gameManager.startGameAsFollower(gameInfoDTO.toGame());
+      return ResponseEntity.of(Optional.of(Boolean.TRUE));
+    } catch (GameRunningException e) {
+      return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Boolean.FALSE);
+    }
   }
 
 

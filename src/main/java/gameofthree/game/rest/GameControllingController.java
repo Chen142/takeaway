@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Used for manually creating a game.
- * todo todo
+ * Used for manually creating a game, observing game play
+ * more features can be included if necessary.
  */
 @RestController
 public class GameControllingController {
@@ -18,6 +18,8 @@ public class GameControllingController {
    */
   @PostMapping
   public String createGame(int startNumber) {
+    //todo
+    return null;
 
   }
 
@@ -28,6 +30,7 @@ public class GameControllingController {
    */
   @GetMapping
   public String viewGameLog(String gameId) {
+    //todo
     return null;
   }
 
