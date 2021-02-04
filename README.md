@@ -8,7 +8,9 @@ A http based end-2-end game for players to exchange numbers until one of the pla
 2. Game will be automatically played by 2 processes.
 3. Only 1 game will be running at the same time (otherwise very hard to see what's going on in logs)
 4. When a game comes finishes, the next game will be scheduled.
-// All times below hasn't finished yet
+
+// items below not finished yet.
+5. It is Possible to manually schedule a game by posting endpoint `/admin/games/create` with start number.  
 The instance get post will be the game starter (the player sending out the 1st number)
 The manually scheduled game will be run as the next game after finishing the ongoing one.
 If multiple games created manually they will be queued.
