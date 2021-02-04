@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # how to use: run.sh playername local_port opposite_player_url (rebuild)[optional]
 # sample
-# bash run.sh player1 8080 player2:9090
-# bash run.sh player2 9090 player1:8080
+# bash run.sh player1 8080 http://player2:9090
+# bash run.sh player2 9090 http://player1:8080
 
 #stop all containers..
 docker stop $1
