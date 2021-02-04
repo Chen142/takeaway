@@ -1,10 +1,10 @@
-package gameofthree.rest;
+package gameofthree.game.rest;
 
 import gameofthree.game.GameManager;
 import gameofthree.game.exceptions.GameRunningException;
 import gameofthree.game.interfaces.GameInfoDTO;
 import gameofthree.game.interfaces.GameNegotiationDTO;
-import gameofthree.game.negotiation.GameNegotiationService;
+import gameofthree.game.services.GameNegotiationService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;

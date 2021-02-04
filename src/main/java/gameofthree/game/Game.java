@@ -1,6 +1,6 @@
 package gameofthree.game;
 
-import gameofthree.game.exceptions.InvalidateStepException;
+import gameofthree.game.exceptions.InvalidStepException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -10,6 +10,7 @@ import lombok.Getter;
 
 @Getter
 public class Game {
+
 
   private enum Operation {
     SEND, RECEIVE
@@ -27,23 +28,28 @@ public class Game {
     WIN, LOSS
   }
 
+  // game info:
   private final String id;
   private final int firstNumber;
+
   private boolean gameRunning;
 
+  // game logs:
   private final List<GameStep> gameSteps = new ArrayList<>();
   private GameResult result;
   private String gameException;
 
+  // game events:
+  private Consumer<Game> onGameStarts;
   private Consumer<Integer> playNumber;
-  private Consumer<Game> onGameEnd;
+  private Consumer<Game> onGameEnds;
 
   public Game(String id, int firstNumber) {
     this.id = id;
     this.firstNumber = firstNumber;
   }
 
-  public void pushStep(int number) throws InvalidateStepException {
+  public void pushStep(int number) throws InvalidStepException {
     validate(number);
     gameSteps.add(new GameStep(number, Operation.RECEIVE));
     if (number == 1) {
@@ -62,7 +68,7 @@ public class Game {
   private void endGame(GameResult result) {
     this.result = result;
     this.gameRunning = false;
-    onGameEnd.accept(this);
+    onGameEnds.accept(this);
   }
 
   // return a structure containing description if we want to print how the number is calculated.
@@ -74,18 +80,18 @@ public class Game {
     }
   }
 
-  private void validate(int number) throws InvalidateStepException {
+  private void validate(int number) throws InvalidStepException {
     if (!gameRunning) {
-      throw new InvalidateStepException("Game hasn't started.");
+      throw new InvalidStepException("Game hasn't started.");
     }
     if (number < 0) {
-      throw new InvalidateStepException("Negative number not allowed.");
+      throw new InvalidStepException("Negative number not allowed.");
     }
     //anti-cheating..
     if (!gameSteps.isEmpty()) {
       int lastNumber = gameSteps.get(gameSteps.size() - 1).getNumber();
       if (playCore(lastNumber) != number) {
-        throw new InvalidateStepException("The opposite side is trying to cheat.");
+        throw new InvalidStepException("The opposite side is trying to cheat.");
       }
     }
   }
@@ -94,6 +100,9 @@ public class Game {
    * Start the game
    */
   public void startGame(boolean asStarter) {
+    if (onGameStarts != null) {
+      onGameStarts.accept(this);
+    }
     gameRunning = true;
     gameSteps.add(new GameStep(firstNumber, Operation.SEND));
     if (asStarter) {
@@ -108,13 +117,30 @@ public class Game {
   public void endGameExceptionally(String gameException) {
     this.gameRunning = false;
     this.gameException = gameException;
+    onGameEnds.accept(this);
   }
 
+  /**
+   * Set a consumer will be called when a number is played by the player
+   * @param playNumber consumer
+   */
   public void setPlayNumber(Consumer<Integer> playNumber) {
     this.playNumber = playNumber;
   }
 
-  public void setOnGameEnd(Consumer<Game> onGameEnd) {
-    this.onGameEnd = onGameEnd;
+  /**
+   * Set a consumer will be called when the game ends
+   * @param onGameEnd consumer
+   */
+  public void setOnGameEnds(Consumer<Game> onGameEnd) {
+    this.onGameEnds = onGameEnd;
+  }
+
+  /**
+   * Set a consumer will be called when the game starts.
+   * @param onGameStarts consumer
+   */
+  public void setOnGameStarts(Consumer<Game> onGameStarts) {
+    this.onGameStarts = onGameStarts;
   }
 }

@@ -1,6 +1,6 @@
 ### negotiation roll as starter.
 POST http://localhost:8080/negotiate/roll
-Content-Type: application/json
+Content-Type: gameofthree.game.application/json
 
 {
   "lastGameId": "hello world",
@@ -10,7 +10,7 @@ Content-Type: application/json
 
 ### negotiation roll as follower
 POST http://localhost:8080/negotiate/roll
-Content-Type: application/json
+Content-Type: gameofthree.game.application/json
 
 {
   "lastGameId": "hello world",
@@ -20,7 +20,7 @@ Content-Type: application/json
 
 ### negotiation roll with demand.
 POST http://localhost:8080/negotiate/roll
-Content-Type: application/json
+Content-Type: gameofthree.game.application/json
 
 {
   "lastGameId": "hello world",
@@ -30,7 +30,7 @@ Content-Type: application/json
 
 ### confirm a game
 POST http://localhost:8080/negotiate/confirm
-Content-Type: application/json
+Content-Type: gameofthree.game.application/json
 
 {
   "gameId": "9999999",

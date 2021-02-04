@@ -1,4 +1,4 @@
-package gameofthree.configuration;
+package gameofthree.game.configuration;
 
 import java.util.concurrent.Executor;
 import org.springframework.beans.factory.annotation.Value;

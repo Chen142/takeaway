@@ -14,8 +14,19 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GameNegotiationDTO {
+public class GameNegotiationDTO implements Comparable<GameNegotiationDTO> {
   private String lastGameId;
   private String roll;
   private boolean demand;
+
+  @Override
+  public int compareTo(GameNegotiationDTO o) {
+    if (demand && !o.isDemand()) {
+      return 1;
+    }
+    if (o.isDemand() && !demand) {
+      return -1;
+    }
+    return roll.compareTo(o.roll);
+  }
 }

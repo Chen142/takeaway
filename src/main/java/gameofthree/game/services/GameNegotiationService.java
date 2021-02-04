@@ -1,4 +1,4 @@
-package gameofthree.game.negotiation;
+package gameofthree.game.services;
 
 import gameofthree.game.Game;
 import gameofthree.game.GameManager;
@@ -17,6 +17,9 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+/**
+ * Negotiate with the other player for who will be the next game starter.
+ */
 @Service
 @Slf4j
 public class GameNegotiationService {
@@ -40,7 +43,7 @@ public class GameNegotiationService {
   /**
    * Negotiate if the play should start the next game
    * @param lastGameId last game id
-   * @param demand if we have a manual game in the queue
+   * @param demand if we have a manual game in the queue, we will be in higher priority to be the next game starter
    * @return TRUE if the player is supposed to start the next game, otherwise false
    * @throws GameRunningException Thrown when there is already a game running which have not finished.
    */
@@ -53,7 +56,7 @@ public class GameNegotiationService {
     try {
       List<GameNegotiationDTO> negotiations = callNegotiate(negotiationDTO);
       for (var roll : negotiations) {
-        if (roll.getRoll().compareTo(this.nextRoll) > 0) {
+        if (negotiationDTO.compareTo(roll) > 0) {
           log.info("Negotiation result: Next game starter.");
           // we are the winner
           Game nextGame = gameManager.prepareNextGame();
@@ -112,7 +115,7 @@ public class GameNegotiationService {
   }
 
   /**
-   * Should be called when a game ends, or application starts.
+   * Should be called when a game ends, or gameofthree.game.application starts.
    * @param lastGameId the id of last game.
    */
   public synchronized void createNextGameContext(String lastGameId) {
