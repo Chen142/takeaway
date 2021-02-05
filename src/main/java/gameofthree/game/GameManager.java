@@ -154,18 +154,18 @@ public class GameManager {
 
   // game events handler:
   private void attachGameEventsHandlers() {
-    runningGame.setOnGameStarts(this::callOnGameStarts);
-    runningGame.setOnGameEnds(game -> {
+    runningGame.setOnGameStartsCallback(this::callOnGameStarts);
+    runningGame.setOnGameEndsCallback(game -> {
       callOnGameEnds(game);
       detachGameEventsHandlers();
     });
-    runningGame.setPlayNumber(this::callOnNumberPlayed);
+    runningGame.setOnNumberPlayed(this::callOnNumberPlayed);
   }
 
   private void detachGameEventsHandlers() {
-    runningGame.setOnGameStarts(null);
-    runningGame.setOnGameEnds(null);
-    runningGame.setPlayNumber(null);
+    runningGame.setOnGameStartsCallback(null);
+    runningGame.setOnGameEndsCallback(null);
+    runningGame.setOnNumberPlayed(null);
   }
 
   private void callOnGameStarts(Game runningGame) {

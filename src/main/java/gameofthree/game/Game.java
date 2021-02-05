@@ -49,7 +49,7 @@ public class Game {
 
   // game events:
   private Consumer<Game> onGameStarts;
-  private Consumer<Integer> playNumber;
+  private Consumer<Integer> onNumberPlayer;
   private Consumer<Game> onGameEnds;
 
   public Game(String id, int firstNumber) {
@@ -75,7 +75,9 @@ public class Game {
     final int nextNumber = playCore(number);
     this.gameSteps.add(new GameStep(nextNumber, Operation.SEND));
 
-    playNumber.accept(nextNumber);
+    if (onNumberPlayer != null) {
+      onNumberPlayer.accept(nextNumber);
+    }
 
     // it can run before sending out the number? It should be fine..
     if (nextNumber == 1) {
@@ -86,7 +88,9 @@ public class Game {
   private void endGame(GameResult result) {
     this.result = result;
     this.gameRunning = false;
-    onGameEnds.accept(this);
+    if (onGameEnds != null) {
+      onGameEnds.accept(this);
+    }
   }
 
   // return a structure containing description if we want to print how the number is calculated.
@@ -106,15 +110,17 @@ public class Game {
       throw new InvalidStepException("Negative number not allowed.");
     }
     //anti-cheating..
-    if (!gameSteps.isEmpty()) {
-      // the starter will send the 1st number, which is the same as the number there.
-      if (!isGameStarter && gameSteps.isEmpty() && firstNumber == number) {
+    // the starter will send the 1st number, which is the same as the number there.
+    if (!isGameStarter && gameSteps.isEmpty()) {
+      if (firstNumber == number) {
         return;
-      }
-      int lastNumber = gameSteps.get(gameSteps.size() - 1).getNumber();
-      if (playCore(lastNumber) != number) {
+      } else {
         throw new InvalidStepException("The opposite side is trying to cheat.");
       }
+    }
+    int lastNumber = gameSteps.get(gameSteps.size() - 1).getNumber();
+    if (playCore(lastNumber) != number) {
+      throw new InvalidStepException("The opposite side is trying to cheat.");
     }
   }
 
@@ -133,7 +139,9 @@ public class Game {
     }
     if (asStarter) {
       gameSteps.add(new GameStep(firstNumber, Operation.SEND));
-      playNumber.accept(firstNumber);
+      if (onNumberPlayer != null) {
+        onNumberPlayer.accept(firstNumber);
+      }
     }
   }
 
@@ -150,17 +158,17 @@ public class Game {
 
   /**
    * Set a consumer will be called when a number is played by the player
-   * @param playNumber consumer
+   * @param onNumberPlayed consumer
    */
-  public void setPlayNumber(Consumer<Integer> playNumber) {
-    this.playNumber = playNumber;
+  public void setOnNumberPlayed(Consumer<Integer> onNumberPlayed) {
+    this.onNumberPlayer = onNumberPlayed;
   }
 
   /**
    * Set a consumer will be called when the game ends
    * @param onGameEnd consumer
    */
-  public void setOnGameEnds(Consumer<Game> onGameEnd) {
+  public void setOnGameEndsCallback(Consumer<Game> onGameEnd) {
     this.onGameEnds = onGameEnd;
   }
 
@@ -168,7 +176,7 @@ public class Game {
    * Set a consumer will be called when the game starts.
    * @param onGameStarts consumer
    */
-  public void setOnGameStarts(Consumer<Game> onGameStarts) {
+  public void setOnGameStartsCallback(Consumer<Game> onGameStarts) {
     this.onGameStarts = onGameStarts;
   }
 }

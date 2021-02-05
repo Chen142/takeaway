@@ -25,7 +25,7 @@ Can be improved if we put player name somewhere and display `{playerName} plays 
 1. Reconnecting not fully tested, there can be edge cases.
 
 # System Requirements
-1. Docker
+1. Docker (version >= 1.10)
 
 #How to run
 1. Build `bash build.sh`

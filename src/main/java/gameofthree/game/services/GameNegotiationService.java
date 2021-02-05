@@ -131,11 +131,4 @@ public class GameNegotiationService {
     this.lastGameId = lastGameId;
   }
 
-
-  @Async
-  public Future<Boolean> resetOpposite() throws InterruptedException {
-    log.info("Re-sync the opposite player..");
-    this.gameNegotiationClient.reset();
-    return AsyncResult.forValue(Boolean.TRUE);
-  }
 }
