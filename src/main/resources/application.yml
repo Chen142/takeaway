@@ -1,7 +1,7 @@
 game:
   http:
     connect.timeoutMs: 30
-    read.timeoutMs: 100
+    read.timeoutMs: 300
   opposite.url: http://localhost:8090
 
 server:

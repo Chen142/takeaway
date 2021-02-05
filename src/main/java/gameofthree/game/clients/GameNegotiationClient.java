@@ -22,6 +22,7 @@ public class GameNegotiationClient {
 
   private static final String ROLL_STARTER_ENDPOINT = "/negotiate/roll";
   private static final String CONFIRM_STARTER_ENDPOINT = "/negotiate/confirm";
+  private static final String RESET_ENDPOINT = "/negotiate/reset";
 
   @Autowired
   public GameNegotiationClient(
@@ -56,11 +57,21 @@ public class GameNegotiationClient {
           entity,
           Boolean.class).getBody());
     } catch (Exception e) {
-      log.error("Wait the other side to be ready.");
       return false;
     }
   }
 
 
-
+  public void reset() throws InterruptedException {
+    boolean success = false;
+    while(!success) {
+      try {
+        restTemplate.getForEntity(oppositeUrl + RESET_ENDPOINT, Void.class);
+        success = true;
+      } catch (Exception e) {
+        log.error("Wait the other side to be ready.", e);
+        Thread.sleep(1000);
+      }
+    }
+  }
 }

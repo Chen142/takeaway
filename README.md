@@ -5,12 +5,10 @@ A http based end-2-end game for players to exchange numbers until one of the pla
 
 # Feature list
 1. Without manual interaction, game will be automatically created in every 10 sec. (Configurable with game.rest.sec)
-2. Game will be automatically played by 2 processes.
+2. Game will be automatically played by 2 processes, the start number is random(2~10000)
 3. Only 1 game will be running at the same time (otherwise very hard to see what's going on in logs)
 4. When a game comes finishes, the next game will be scheduled.
-
-// items below not finished yet.
-5. It is Possible to manually schedule a game by posting endpoint `/admin/games/create` with start number.  
+5. It is Possible to manually schedule a game by posting endpoint `/admin/games/create` with start number (must be >2) .
 The instance get post will be the game starter (the player sending out the 1st number)
 The manually scheduled game will be run as the next game after finishing the ongoing one.
 If multiple games created manually they will be queued.
@@ -19,23 +17,29 @@ If both players have manually created games, they will roll for the next starter
 7. Game play can be viewed with endpoint '/admin/games/{id}/log', both player have all game logs. 
 (however the content for the same game can be mirrored, e.g. for player1 `send 50` is `receive 50` for player2, `Win` for player1 is `Loss` for player2,
 Can be improved if we put player name somewhere and display `{playerName} plays 50` or `{playerName} wins`)
-8. Highly modular therefore any part of the logic is easy to replace.
-9. When a one of the players disconnects, the current game ends exceptionally (display also in game log page), a new game will start when he comes back.
+8. When one of the players disconnects, the current game ends exceptionally (display also in game log page), a new game will start when he comes back.
+9. Players can quit and rejoin as they want.
 
 
-# Known Issue List
-1. When it happens that `player1` find `player2` disconnected (network issues), however in the view of `play2` both players are online and healthy. The game lifecycle state will be broken. -- can be solved by involving a game timeout without action.
+# Known Issues List
+1. Reconnecting not fully tested, there can be edge cases.
 
+# System Requirements
+1. Docker
 
 #How to run
-Build with JAVA11.
+1. Build `bash build.sh`
 1. Start player1: `bash run.sh player1 8080 http://player2:9090`
 1. Start player2: `bash run.sh player2 9090 http://player1:8080`
+1. View played games @`http://localhost:8080/admin/games/list` after some time.
+1. View game logs @`http://localhost:8080/admin/games/{id}/log`, buy copying an id from played games page.
+1. Manually schedule a game with number 200 by calling `curl --data "200" http://localhost:8080/admin/games/create -H  "CONTENT-TYPE: application/json"`, remember the game id returned.
+1. Now we can find the game id on played games list. (maybe after several seconds)
+1. The game log is available with the game id too. (maybe after several seconds)
+1. test retry - try to kill one container and reboot it.
 
-If the test env trying to run it doesn't have java11, replace the command with:
-1. `bash run.sh player1 8080 http://player2:9090 rebuild`
-1. `bash run.sh player1 8080 http://player2:9090 rebuild`
+# TODO
+1. makefile
+1. unit tests
+1. e2e tests
 
-It will build the `.jar` file inside the docker container. (can be very slow)
-
-TODO - A stand along image can be created, if necessary. See if have a little more time :P

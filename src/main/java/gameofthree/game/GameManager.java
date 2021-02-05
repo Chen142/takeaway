@@ -2,10 +2,12 @@ package gameofthree.game;
 
 import gameofthree.game.exceptions.GameRunningException;
 import gameofthree.game.exceptions.TooManyWaitingGamesException;
-import gameofthree.game.services.GamePlayService;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Component;
 public class GameManager {
 
   private final int restBetweenGamesSec;
+  private final int gameKOTimeout;
 
   private final ConcurrentMap<String, Game> playedGames = new ConcurrentHashMap<>();// stores history games and ongoing games.
   private final BlockingQueue<Game> queuedGames = new ArrayBlockingQueue<>(10);
@@ -45,9 +48,11 @@ public class GameManager {
   @Autowired
   public GameManager(
       Supplier<Game> gameCreator,
-      @Value("${game.rest.sec:10}") int restBetweenGamesSec) {
+      @Value("${game.rest.sec:10}") int restBetweenGamesSec,
+      @Value("${game.ko.sec:20}") int gameKOTimeout) {
     gameSupplier = gameCreator;
     this.restBetweenGamesSec = restBetweenGamesSec;
+    this.gameKOTimeout = gameKOTimeout;
   }
 
   /**
@@ -61,6 +66,10 @@ public class GameManager {
 
   public Optional<Game> getRunningGame() {
     return Optional.ofNullable(runningGame);
+  }
+
+  public Collection<String> listGames() {
+    return playedGames.keySet();
   }
 
 
@@ -93,7 +102,9 @@ public class GameManager {
       throw new GameRunningException(runningGame.getId());
     }
     runningGame = queuedGames.poll(restBetweenGamesSec, TimeUnit.SECONDS);
-    runningGame = gameSupplier.get();
+    if (runningGame == null) {
+      runningGame = gameSupplier.get();
+    }
     return runningGame;
   }
 
@@ -111,6 +122,21 @@ public class GameManager {
     runningGame.startGame(false);
     playedGames.put(runningGame.getId(), runningGame);
     log.info("Play {} as follower, first number is {}", game.getId(), game.getFirstNumber());
+
+    // if the starter dead after confirming, it won't kick off the game. use a timeout to end the game.
+    new Timer().schedule(new TimerTask() {
+      @Override
+      public void run() {
+        if (runningGame.getId().equals(game.getId()) && runningGame.getGameSteps().isEmpty()) {
+          cancelGameForDeadStarter();
+        }
+      }
+    }, gameKOTimeout * 1000L);
+  }
+
+  private void cancelGameForDeadStarter() {
+    log.error("Game starter not sending a number, end game...");
+    runningGame.endGameExceptionally("Starter not kicking of the game...");
   }
 
   /**
@@ -124,10 +150,6 @@ public class GameManager {
     } catch (IllegalStateException e) {
       throw new TooManyWaitingGamesException("Too many games waiting to be played.");
     }
-  }
-
-  public boolean hasGameInQueue() {
-    return !queuedGames.isEmpty();
   }
 
   // game events handler:
@@ -185,6 +207,10 @@ public class GameManager {
    */
   public void attachGamePlayListener(BiConsumer<Game, Integer> listener) {
     this.onNumberPlayed.add(listener);
+  }
+
+  public boolean hasDemandGame() {
+    return !queuedGames.isEmpty();
   }
 
 }

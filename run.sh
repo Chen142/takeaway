@@ -6,15 +6,9 @@
 
 #stop all containers..
 docker stop $1
-
-REBUILD=0
-if [ $4 -eq "rebuild" ]; then
-  REBUILD=1
-fi
-
-docker network create --driver bridge shared_bridge
 docker container rm $1
 
+docker network create --driver bridge shared_bridge
 
-docker build . -t game
-docker run --name $1 -p $2:$2 -e port=$2 -e opposite_player=$3 -e rebuild=${REBUILD} --network shared_bridge game
+
+docker run --name $1 -p $2:$2 -e port=$2 -e opposite_player=$3 --network shared_bridge game_chen

@@ -1,5 +1,6 @@
 package gameofthree.game;
 
+import gameofthree.game.exceptions.GamePlayException;
 import gameofthree.game.exceptions.InvalidStepException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,14 +24,14 @@ public class Game {
 
   @AllArgsConstructor
   @Data
-  private static class GameStep {
+  public static class GameStep {
     private int number;
     private Operation operation;
   }
 
 
-  private enum GameResult {
-    WIN, LOSS
+  public enum GameResult {
+    WIN, LOSS, EXCEPTION
   }
 
   // game info:
@@ -54,6 +55,13 @@ public class Game {
   public Game(String id, int firstNumber) {
     this.id = id;
     this.firstNumber = firstNumber;
+    validateFirstNumber(firstNumber);
+  }
+
+  private void validateFirstNumber(int firstNumber) {
+    if (firstNumber < 2) {
+      throw new GamePlayException("Invalid first number");
+    }
   }
 
   public void pushStep(int number) throws InvalidStepException {
@@ -113,12 +121,16 @@ public class Game {
   /**
    * Start the game
    */
-  public void startGame(boolean asStarter) {
+  public synchronized void startGame(boolean asStarter) {
+    if (gameRunning) {
+      return;
+    }
+    gameRunning = true;
+
     this.isGameStarter = asStarter;
     if (onGameStarts != null) {
       onGameStarts.accept(this);
     }
-    gameRunning = true;
     if (asStarter) {
       gameSteps.add(new GameStep(firstNumber, Operation.SEND));
       playNumber.accept(firstNumber);
@@ -130,11 +142,10 @@ public class Game {
    * @param gameException reason why the game is ended with exception, can be used to print
    */
   public void endGameExceptionally(String gameException) {
-    if (gameRunning) {
-      this.gameRunning = false;
-      this.gameException = gameException;
-      onGameEnds.accept(this);
-    }
+    this.gameRunning = false;
+    this.gameException = gameException;
+    this.result = GameResult.EXCEPTION;
+    onGameEnds.accept(this);
   }
 
   /**

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 /**
  * Logic for playing against the other player.
  * Very light for now.
+ * Replacing gamePlayClient in playNumber with a http output can make the game AI vs human. :P
  */
 @Service
 @Slf4j
@@ -39,8 +40,8 @@ public class GamePlayService {
   @Async
   public void playNumber(Game game, Integer number) {
     try {
-      log.info("For game {}: {} played", game.getId(), number);
       gamePlayClient.playNumber(game.getId(), number);
+      log.info("For game {}: {} played", game.getId(), number);
     } catch (GamePlayException e) {
       //the other player must be lost, end the game now...
       //there are some problems here if one player find the other disconnected and starts a new game, the other can
@@ -63,4 +64,5 @@ public class GamePlayService {
       gameManager.getRunningGame().get().pushStep(number);
     }
   }
+
 }

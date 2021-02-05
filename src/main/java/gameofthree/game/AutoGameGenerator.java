@@ -16,6 +16,6 @@ public class AutoGameGenerator implements Supplier<Game> {
 
   @Override
   public Game get() {
-    return new Game(UUID.randomUUID().toString(), random.nextInt(1000 + 1));
+    return new Game(UUID.randomUUID().toString(), random.nextInt(9999 + 2));
   }
 }

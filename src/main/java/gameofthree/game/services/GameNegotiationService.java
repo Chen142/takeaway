@@ -3,6 +3,7 @@ package gameofthree.game.services;
 import gameofthree.game.Game;
 import gameofthree.game.GameManager;
 import gameofthree.game.clients.GameNegotiationClient;
+import gameofthree.game.exceptions.GamePlayException;
 import gameofthree.game.exceptions.GameRunningException;
 import gameofthree.game.interfaces.GameInfoDTO;
 import gameofthree.game.interfaces.GameNegotiationDTO;
@@ -82,7 +83,10 @@ public class GameNegotiationService {
     //if the last game id doesn't match, it is possible that we or the other side hasn't finish the ongoing game,
     //return empty to ask the other side to retry after some time.
     // we don't want to use a signal to WAIT the game to finish here because it can cause http timeout.
-    if (!gameNegotiationDTO.getLastGameId().equals(lastGameId)) {
+    if (!gameNegotiationDTO.getLastGameId().equals(lastGameId)
+        // We deal it as a valid negotiation if one player reboots between games.
+        && !gameNegotiationDTO.getLastGameId().equals(GameControlService.GAME_ZERO_ID)
+        && !lastGameId.equals(GameControlService.GAME_ZERO_ID)) {
       return Collections.emptyList();
     }
     final GameNegotiationDTO myNegotiation = new GameNegotiationDTO(lastGameId, nextRoll, demand);
@@ -92,10 +96,10 @@ public class GameNegotiationService {
     return result;
   }
 
-  private void callConfirm(GameInfoDTO gameInfoDTO) throws InterruptedException {
+  private void callConfirm(GameInfoDTO gameInfoDTO) {
     log.info("Confirming next game {} as starter..", gameInfoDTO.getGameId());
-    while (!gameNegotiationClient.confirmStarter(gameInfoDTO)) {
-      Thread.sleep(3000);
+    if (!gameNegotiationClient.confirmStarter(gameInfoDTO)) {
+      throw new GamePlayException("Game Not confirmed..");
     }
     log.info("Next game confirmed.");
   }
@@ -128,4 +132,10 @@ public class GameNegotiationService {
   }
 
 
+  @Async
+  public Future<Boolean> resetOpposite() throws InterruptedException {
+    log.info("Re-sync the opposite player..");
+    this.gameNegotiationClient.reset();
+    return AsyncResult.forValue(Boolean.TRUE);
+  }
 }

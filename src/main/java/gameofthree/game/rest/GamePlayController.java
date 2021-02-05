@@ -44,7 +44,7 @@ public class GamePlayController {
     try {
       this.gamePlayService.recieveNumber(gamePlayDTO.getGameId(), gamePlayDTO.getNumber());
     } catch (InvalidStepException e) {
-      log.error("Invalid stap played.", e);
+      log.error("Invalid step played.", e);
       response.setStatus(HttpStatus.BAD_REQUEST.value());
     }
   }

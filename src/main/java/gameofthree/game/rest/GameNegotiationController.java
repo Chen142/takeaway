@@ -31,7 +31,9 @@ public class GameNegotiationController {
   private final GameManager gameManager;
 
   @Autowired
-  public GameNegotiationController(GameNegotiationService gameNegotiationService, GameManager gameManager) {
+  public GameNegotiationController(
+      GameNegotiationService gameNegotiationService,
+      GameManager gameManager) {
     this.gameNegotiationService = gameNegotiationService;
     this.gameManager = gameManager;
   }
@@ -43,7 +45,7 @@ public class GameNegotiationController {
    */
   @PostMapping(value = "/roll", consumes = "application/json", produces = "application/json")
   public List<GameNegotiationDTO> rollStarter(@RequestBody GameNegotiationDTO negotiation) {
-    return gameNegotiationService.replyNegotiation(negotiation, gameManager.hasGameInQueue());
+    return gameNegotiationService.replyNegotiation(negotiation, gameManager.hasDemandGame());
   }
 
   /**
@@ -53,7 +55,7 @@ public class GameNegotiationController {
    * @throws GameRunningException Thrown when the follower hasn't finish it's ongoing game, the starter will retry after some time.
    */
   @PostMapping(value = "/confirm", consumes = "application/json", produces = "application/json")
-  public ResponseEntity<Boolean> confirmStarter(@RequestBody GameInfoDTO gameInfoDTO) throws GameRunningException {
+  public ResponseEntity<Boolean> confirmStarter(@RequestBody GameInfoDTO gameInfoDTO) {
     try {
       gameManager.startGameAsFollower(gameInfoDTO.toGame());
       return ResponseEntity.of(Optional.of(Boolean.TRUE));
@@ -61,6 +63,5 @@ public class GameNegotiationController {
       return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Boolean.FALSE);
     }
   }
-
 
 }
