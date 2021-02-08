@@ -1,5 +1,5 @@
 # Introduction
-This is an interview challenge for takeaway.com created by Chen (morning142857@hotmail.com).
+This is an interview challenge for takeaway.com created by Chen (morning142857@gmail.com).
 A http based end-2-end game for players to exchange numbers until one of the player get 1.
 {See number exchanging rule in gameofthree.game.Game#playCore}
 
