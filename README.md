@@ -37,7 +37,7 @@ Can be improved if we put player name somewhere and display `{playerName} plays 
 `curl --data "200" http://localhost:8080/admin/games/create -H  "CONTENT-TYPE: application/json"`, remember the game id returned.
 1. Now we can find the game id on played games list. (maybe after several seconds)
 1. The game log is available with the game id too. (maybe after several seconds)
-1. test retry - try to kill one container and reboot it.
+1. Try out reconnection. - try to kill one container and reboot it.
 
 # TODO
 1. makefile
