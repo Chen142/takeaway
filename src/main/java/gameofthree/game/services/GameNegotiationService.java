@@ -85,8 +85,7 @@ public class GameNegotiationService {
     // we don't want to use a signal to WAIT the game to finish here because it can cause http timeout.
     if (!gameNegotiationDTO.getLastGameId().equals(lastGameId)
         // We deal it as a valid negotiation if one player reboots between games.
-        && !gameNegotiationDTO.getLastGameId().equals(GameControlService.GAME_ZERO_ID)
-        && !lastGameId.equals(GameControlService.GAME_ZERO_ID)) {
+        && !reJoined(gameNegotiationDTO, lastGameId)) {
       return Collections.emptyList();
     }
     final GameNegotiationDTO myNegotiation = new GameNegotiationDTO(lastGameId, nextRoll, demand);
@@ -94,6 +93,12 @@ public class GameNegotiationService {
     result.add(gameNegotiationDTO);
     result.add(myNegotiation);
     return result;
+  }
+
+  private boolean reJoined(GameNegotiationDTO gameNegotiationDTO, String lastGameId) {
+    return gameNegotiationDTO.getLastGameId().equals(GameControlService.GAME_ZERO_ID)
+        || lastGameId.equals(GameControlService.GAME_ZERO_ID)
+        && gameManager.getRunningGame().map(Game::getResult).isEmpty();
   }
 
   private void callConfirm(GameInfoDTO gameInfoDTO) {
@@ -115,6 +120,8 @@ public class GameNegotiationService {
       negotiations = gameNegotiationClient.rollStarter(negotiationDTO);
       retry = true;
     }
+
+    negotiations.forEach(n -> log.info("Negotiations: roll {} demand {}", n.getRoll(), n.isDemand()));
     return negotiations;
   }
 

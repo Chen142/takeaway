@@ -68,6 +68,7 @@ public class GameControlService implements CommandLineRunner {
 
   private synchronized void reset() {
     theGameFinished = GAME_ZERO_ID;
+    gameManager.resetRunningGame();
     this.notifyAll();
   }
 
@@ -93,11 +94,12 @@ public class GameControlService implements CommandLineRunner {
       } catch (ExecutionException e) {
         //looks like the other player is gone during the negotiation..
         log.error("Players out of sync, resetting global state..", e);
-        theGameFinished = GAME_ZERO_ID;
+        gameManager.getRunningGame().ifPresent(g -> g.endGameExceptionally("Players out of sync"));
+        reset();
         lastGame = "";
       } catch (GameRunningException e) {
-        log.info("Expected game lifecycle, it should not happen.", e);
-        lastGame = "";
+        //should not happen
+        log.info("Game already running", e);
       }
     }
   }

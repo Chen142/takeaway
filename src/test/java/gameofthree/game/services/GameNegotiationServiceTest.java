@@ -79,9 +79,6 @@ class GameNegotiationServiceTest {
     assertThat(reply).contains(roll);
     assertThat(reply).anyMatch(GameNegotiationDTO::isDemand);
     assertThat(reply).allMatch(r -> r.getLastGameId().equals(LAST_GAME));
-
-
-
   }
 
 }

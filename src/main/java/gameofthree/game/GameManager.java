@@ -68,6 +68,10 @@ public class GameManager {
     return Optional.ofNullable(runningGame);
   }
 
+  public synchronized void resetRunningGame() {
+    runningGame = null;
+  }
+
   public Collection<String> listGames() {
     return playedGames.keySet();
   }
@@ -78,7 +82,7 @@ public class GameManager {
    * @throws GameRunningException when there is already a game running.
    */
   public synchronized Game startAGameAsStarter() throws GameRunningException, InterruptedException {
-    if (runningGame == null) {
+    if (runningGame == null || runningGame.getResult() != null) {
       prepareNextGame();
     }
     if (runningGame.isGameRunning()) {
@@ -127,16 +131,18 @@ public class GameManager {
     new Timer().schedule(new TimerTask() {
       @Override
       public void run() {
-        if (runningGame.getId().equals(game.getId()) && runningGame.getGameSteps().isEmpty()) {
+        if (runningGame != null && runningGame.getId().equals(game.getId()) && runningGame.getGameSteps().isEmpty()) {
           cancelGameForDeadStarter();
         }
       }
     }, gameKOTimeout * 1000L);
   }
 
-  private void cancelGameForDeadStarter() {
-    log.error("Game starter not sending a number, end game...");
-    runningGame.endGameExceptionally("Starter not kicking of the game...");
+  private synchronized void cancelGameForDeadStarter() {
+    if (runningGame != null) {
+      log.error("Game starter not sending a number, end game...");
+      runningGame.endGameExceptionally("Starter not kicking of the game...");
+    }
   }
 
   /**
@@ -163,9 +169,11 @@ public class GameManager {
   }
 
   private void detachGameEventsHandlers() {
-    runningGame.setOnGameStartsCallback(null);
-    runningGame.setOnGameEndsCallback(null);
-    runningGame.setOnNumberPlayed(null);
+    if (runningGame != null) {
+      runningGame.setOnGameStartsCallback(null);
+      runningGame.setOnGameEndsCallback(null);
+      runningGame.setOnNumberPlayed(null);
+    }
   }
 
   private void callOnGameStarts(Game runningGame) {
