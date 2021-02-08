@@ -4,7 +4,7 @@ Content-Type: application/json
 
 {
   "lastGameId": "hello world",
-  "roll": "zzzzzzzz",
+  "roll": "00000",
   "demand": false
 }
 
@@ -14,7 +14,7 @@ Content-Type: application/json
 
 {
   "lastGameId": "hello world",
-  "roll": "9999999",
+  "roll": "zzzzz",
   "demand": false
 }
 
@@ -24,7 +24,7 @@ Content-Type: application/json
 
 {
   "lastGameId": "hello world",
-  "roll": "zzzzzzzzz",
+  "roll": "00000",
   "demand": true
 }
 

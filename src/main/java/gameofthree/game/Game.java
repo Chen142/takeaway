@@ -11,8 +11,7 @@ import lombok.Getter;
 
 /**
  * The essential logic of the game.
- * What about replacing it with chess game? :P
- * - change the Integer to a generic type and create an interface.
+ * Use callbacks to output numbers and game status changes.
  */
 @Getter
 public class Game {

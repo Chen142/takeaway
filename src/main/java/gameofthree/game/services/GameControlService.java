@@ -54,7 +54,7 @@ public class GameControlService implements CommandLineRunner {
     gamePlayService.playNumber(game, integer);
   }
 
-  private synchronized void onGameEnds(Game game) {
+  synchronized void onGameEnds(Game game) {
     log.info("Game {} ends with result: {}", game.getId(),
         game.getResult() == GameResult.EXCEPTION ? game.getGameException() : game.getResult());
     if (game.getResult() == GameResult.EXCEPTION) {
