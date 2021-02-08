@@ -21,8 +21,12 @@ Can be improved if we put player name somewhere and display `{playerName} plays 
 9. Players can quit and rejoin as they want.
 
 
-# Known Issues List
-1. Reconnecting not fully tested, there can be 1 or 2 edge cases not covered.
+# Known Issues List & Todo List
+1. Brain split can happen on fail-reconnect. 
+When player1 think player2 dropped however player2 find player2 is healthy, 
+player1 will reset the game while player2 is expecting next number fot the game. 
+Needs a 'game timeout' mechanism to solve it. - Current work around, reboot player2 to reset him too.
+
 
 # System Requirements
 1. Docker (version >= 1.10)
@@ -40,9 +44,4 @@ by copying an id from played games page.
 1. The game log is available with the game id too. (maybe after several seconds)
 1. Try out reconnection. - try to kill one container and reboot it. `docker stop player1; bash run.sh player1 8080 http://player2:9090`
 1. Stop players `docker stop player1 player2`
-
-# TODO
-1. makefile
-1. e2e tests
-1. log config.
 
