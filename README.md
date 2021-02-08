@@ -42,4 +42,5 @@ Can be improved if we put player name somewhere and display `{playerName} plays 
 # TODO
 1. makefile
 1. e2e tests
+1. log config.
 

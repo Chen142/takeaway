@@ -36,7 +36,7 @@ public class GameControlService implements CommandLineRunner {
       GameNegotiationService gameNegotiationService,
       GamePlayService gamePlayService,
       GameManager gameManager,
-      @Value("${game.ko.sec:20}") int gameKOTimeout
+      @Value("${game.ko.sec:30}") int gameKOTimeout
   ) {
     this.gameNegotiationService = gameNegotiationService;
     this.gameManager = gameManager;

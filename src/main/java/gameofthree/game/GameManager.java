@@ -48,7 +48,7 @@ public class GameManager {
   @Autowired
   public GameManager(
       Supplier<Game> gameCreator,
-      @Value("${game.rest.sec:10}") int restBetweenGamesSec,
+      @Value("${game.rest.sec:5}") int restBetweenGamesSec,
       @Value("${game.ko.sec:20}") int gameKOTimeout) {
     gameSupplier = gameCreator;
     this.restBetweenGamesSec = restBetweenGamesSec;
