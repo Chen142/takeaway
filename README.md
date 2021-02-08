@@ -27,7 +27,7 @@ Can be improved if we put player name somewhere and display `{playerName} plays 
 # System Requirements
 1. Docker (version >= 1.10)
 
-#How to run
+# How to run
 1. Build `bash build.sh` (can be slow)
 1. Start player1: `bash run.sh player1 8080 http://player2:9090`
 1. Start player2: `bash run.sh player2 9090 http://player1:8080` (open a new terminal)
