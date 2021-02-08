@@ -32,7 +32,8 @@ Can be improved if we put player name somewhere and display `{playerName} plays 
 1. Start player1: `bash run.sh player1 8080 http://player2:9090`
 1. Start player2: `bash run.sh player2 9090 http://player1:8080` (open a new terminal)
 1. View played games @`http://localhost:8080/admin/games/list` after some time.
-1. View game logs @`http://localhost:8080/admin/games/{id}/log`, by copying an id from played games page.
+1. View game logs (player1's perspective) @`http://localhost:8080/admin/games/{id}/log` OR (player2's perspective) @`http://localhost:9090/admin/games/{id}/log`, 
+by copying an id from played games page.
 1. Manually schedule a game with number 200 by calling 
 `curl --data "200" http://localhost:8080/admin/games/create -H  "CONTENT-TYPE: application/json"`, remember the game id returned.
 1. Now we can find the game id on played games list. (maybe after several seconds)

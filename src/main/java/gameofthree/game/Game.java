@@ -152,7 +152,9 @@ public class Game {
     this.gameRunning = false;
     this.gameException = gameException;
     this.result = GameResult.EXCEPTION;
-    onGameEnds.accept(this);
+    if (onGameEnds != null) {
+      onGameEnds.accept(this);
+    }
   }
 
   /**
