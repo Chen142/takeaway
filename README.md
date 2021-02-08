@@ -30,7 +30,7 @@ Can be improved if we put player name somewhere and display `{playerName} plays 
 #How to run
 1. Build `bash build.sh` (can be slow)
 1. Start player1: `bash run.sh player1 8080 http://player2:9090`
-1. Start player2: `bash run.sh player2 9090 http://player1:8080`
+1. Start player2: `bash run.sh player2 9090 http://player1:8080` (open a new terminal)
 1. View played games @`http://localhost:8080/admin/games/list` after some time.
 1. View game logs @`http://localhost:8080/admin/games/{id}/log`, by copying an id from played games page.
 1. Manually schedule a game with number 200 by calling 
